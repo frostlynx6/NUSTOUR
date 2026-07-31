@@ -135,6 +135,8 @@
       grid.appendChild(item);
     }
 
+    // Replace existing block for same date to avoid duplicates
+    slotsEl.querySelector(`.day-block[data-date="${dateISO}"]`)?.remove();
     slotsEl.appendChild(node);
   }
 
