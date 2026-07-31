@@ -39,7 +39,15 @@
     return wd >= 1 && wd <= 5;
   }
   function fmtDateISO(d) {
-    return d.toISOString().slice(0,10);
+    // Local-date ISO (no timezone shifting)
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const da = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${da}`;
+  }
+  function localDateFromISO(dateISO) {
+    const [y, m, da] = dateISO.split('-').map(Number);
+    return new Date(y, (m || 1) - 1, da || 1);
   }
   function fmtDayTitle(d) {
     return d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
@@ -110,7 +118,7 @@
       .filter(d => d > dayISO)
       .sort();
     for (const d of futureDates) {
-      const dt = new Date(d + 'T00:00:00');
+      const dt = localDateFromISO(d);
       addDayBlock(dt);
     }
   }
@@ -149,7 +157,7 @@
       neededEl.textContent = String(st.neededAE);
 
       const isLocked = latestSummary.lockedDates?.includes?.(dateISO);
-      const isWeekend = !isWeekday(new Date(dateISO + 'T00:00:00'));
+      const isWeekend = !isWeekday(localDateFromISO(dateISO));
       const atCapacity = st.available <= 0;
       if (isLocked || isWeekend) {
         reserveBtn.disabled = true;
@@ -308,7 +316,7 @@
           // Open time picker for this date instead of changing visible blocks
           await openTimePicker(iso);
           if (selectedDateLabel) {
-            selectedDateLabel.textContent = new Date(iso + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
+            selectedDateLabel.textContent = localDateFromISO(iso).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
             selectedDateLabel.textContent = `Selected: ${selectedDateLabel.textContent}`;
           }
         });
@@ -326,7 +334,7 @@
   function addOrReplaceDay(dateISO) {
     // Remove existing block for this date if any, then add and scroll into view
     slotsEl.querySelector(`.day-block[data-date="${dateISO}"]`)?.remove();
-    addDayBlock(new Date(dateISO + 'T00:00:00'));
+    addDayBlock(localDateFromISO(dateISO));
     slotsEl.querySelector(`.day-block[data-date="${dateISO}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -346,10 +354,10 @@
       }
     } catch (_) {}
 
-    dateTimesTitle.textContent = `Choose a Time — ${new Date(dateISO + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}`;
+    dateTimesTitle.textContent = `Choose a Time — ${localDateFromISO(dateISO).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}`;
     dateTimesGrid.innerHTML = '';
     const isLocked = latestSummary.lockedDates?.includes?.(dateISO);
-    const isWeekend = !isWeekday(new Date(dateISO + 'T00:00:00'));
+    const isWeekend = !isWeekday(localDateFromISO(dateISO));
     for (const h of times()) {
       const item = itemTpl.content.cloneNode(true);
       const timeLabel = item.querySelector('.time');
