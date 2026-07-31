@@ -93,6 +93,7 @@
     const grid = node.querySelector('.grid');
     node.querySelector('.day-title').textContent = fmtDayTitle(dateObj);
     const dateISO = fmtDateISO(dateObj);
+    if (sec) sec.dataset.date = dateISO;
 
     for (const h of times()) {
       const item = itemTpl.content.cloneNode(true);
@@ -248,6 +249,8 @@
       const div = document.createElement('div');
       const iso = fmtDateISO(d);
       div.className = 'cal-day';
+      div.setAttribute('role', 'button');
+      div.setAttribute('tabindex', '0');
       div.textContent = d.getDate();
       const isWk = isWeekday(d);
       if (!isWk) div.classList.add('disabled');
@@ -260,21 +263,22 @@
           // Add or replace a block for this date
           addOrReplaceDay(iso);
         });
+        div.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Enter' || ev.key === ' ') {
+            ev.preventDefault();
+            div.click();
+          }
+        });
       }
       calGrid.appendChild(div);
     }
   }
 
   function addOrReplaceDay(dateISO) {
-    // Remove existing block for this date if any, then add
-    const blocks = Array.from(slotsEl.querySelectorAll('.day-block'));
-    for (const b of blocks) {
-      const title = b.querySelector('.day-title')?.textContent || '';
-      if (title.includes(new Date(dateISO + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric' }))) {
-        b.remove();
-      }
-    }
+    // Remove existing block for this date if any, then add and scroll into view
+    slotsEl.querySelector(`.day-block[data-date="${dateISO}"]`)?.remove();
     addDayBlock(new Date(dateISO + 'T00:00:00'));
+    slotsEl.querySelector(`.day-block[data-date="${dateISO}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   async function primeSummary() {
