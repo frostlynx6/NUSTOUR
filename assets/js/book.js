@@ -26,6 +26,11 @@
   const uploadInput = document.getElementById('proof');
   const uploadStatus = document.getElementById('uploadStatus');
 
+  // Time picker dialog
+  const dateTimesDialog = document.getElementById('dateTimesDialog');
+  const dateTimesTitle = document.getElementById('dateTimesTitle');
+  const dateTimesGrid = document.getElementById('dateTimesGrid');
+
   let pendingSelection = null; // { dateISO, hour, adults, children, name, email }
   let latestSummary = { days: {}, lockedDates: [] };
 
@@ -300,8 +305,8 @@
         div.addEventListener('click', async () => {
           document.querySelectorAll('.cal-day.selected').forEach(e => e.classList.remove('selected'));
           div.classList.add('selected');
-          // Add or replace a block for this date
-          addOrReplaceDay(iso);
+          // Open time picker for this date instead of changing visible blocks
+          await openTimePicker(iso);
           if (selectedDateLabel) {
             selectedDateLabel.textContent = new Date(iso + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
             selectedDateLabel.textContent = `Selected: ${selectedDateLabel.textContent}`;
@@ -323,6 +328,70 @@
     slotsEl.querySelector(`.day-block[data-date="${dateISO}"]`)?.remove();
     addDayBlock(new Date(dateISO + 'T00:00:00'));
     slotsEl.querySelector(`.day-block[data-date="${dateISO}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function openTimePicker(dateISO) {
+    // Get fresh summary for the selected day only
+    try {
+      const res = await fetch(`/api/slots?start=${dateISO}&end=${dateISO}`);
+      if (res.ok) {
+        const data = await res.json();
+        // Merge into latestSummary.days
+        if (data.days && Object.keys(data.days).length) {
+          latestSummary.days[dateISO] = data.days[dateISO];
+        } else {
+          // Ensure an empty entry to show zeroed times
+          latestSummary.days[dateISO] = latestSummary.days[dateISO] || {};
+        }
+      }
+    } catch (_) {}
+
+    dateTimesTitle.textContent = `Choose a Time — ${new Date(dateISO + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}`;
+    dateTimesGrid.innerHTML = '';
+    const isLocked = latestSummary.lockedDates?.includes?.(dateISO);
+    const isWeekend = !isWeekday(new Date(dateISO + 'T00:00:00'));
+    for (const h of times()) {
+      const item = itemTpl.content.cloneNode(true);
+      const timeLabel = item.querySelector('.time');
+      timeLabel.textContent = fmtTimeLabel(h);
+      const barConfirmed = item.querySelector('.bar .seg.confirmed');
+      const barReserved = item.querySelector('.bar .seg.reserved');
+      const barAvail = item.querySelector('.bar .seg.available');
+      const statConfirmed = item.querySelector('.confirmed-stat');
+      const statReserved = item.querySelector('.reserved-stat');
+      const statAvailable = item.querySelector('.available-stat');
+      const neededEl = item.querySelector('.needed');
+      const reserveBtn = item.querySelector('.reserve-btn');
+
+      const st = slotStatsFromSummary(dateISO, h);
+      const pctConfirmed = (st.confirmed / CAPACITY) * 100;
+      const pctReserved = (st.reserved / CAPACITY) * 100;
+      const pctAvail = 100 - pctConfirmed - pctReserved;
+      barConfirmed.style.width = pctConfirmed + '%';
+      barReserved.style.width = pctReserved + '%';
+      barAvail.style.width = pctAvail + '%';
+      statConfirmed.textContent = `Confirmed: ${st.confirmed}`;
+      statReserved.textContent = `Reserved: ${st.reserved}`;
+      statAvailable.textContent = `Available: ${st.available}`;
+      neededEl.textContent = String(st.neededAE);
+
+      const atCapacity = st.available <= 0;
+      if (isLocked || isWeekend) {
+        reserveBtn.disabled = true;
+        reserveBtn.textContent = isLocked ? 'Locked' : 'Weekend';
+      } else if (atCapacity) {
+        reserveBtn.disabled = true;
+        reserveBtn.textContent = 'Full';
+      } else {
+        reserveBtn.addEventListener('click', () => {
+          pendingSelection = { dateISO, hour: h };
+          dateTimesDialog.close();
+          openReserve(dateISO, h, st);
+        });
+      }
+      dateTimesGrid.appendChild(item);
+    }
+    dateTimesDialog.showModal();
   }
 
   async function primeSummary() {

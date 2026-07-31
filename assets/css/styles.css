@@ -120,6 +120,7 @@ a { color: var(--nus-blue); text-decoration: none; }
 
 dialog { border: none; border-radius: 16px; padding: 0; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
 .dialog-card { padding: 16px; min-width: 340px; }
+.dialog-card #dateTimesGrid.grid { margin-top: 6px; }
 .dialog-card header { margin-bottom: 8px; }
 .form-row { display: grid; gap: 6px; margin: 10px 0; }
 .form-row.two { grid-template-columns: 1fr 1fr; gap: 10px; }
