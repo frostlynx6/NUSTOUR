@@ -29,6 +29,15 @@
           <strong>Choose a date (next 3 weeks)</strong>
           <small class="hint">Weekdays only. Locked days are unavailable.</small>
         </div>
+        <div class="cal-weekdays" aria-hidden="true">
+          <div>Mon</div>
+          <div>Tue</div>
+          <div>Wed</div>
+          <div>Thu</div>
+          <div>Fri</div>
+          <div>Sat</div>
+          <div>Sun</div>
+        </div>
         <div class="cal-grid" id="calGrid"></div>
       </section>
 
@@ -38,6 +47,7 @@
         <span><span class="dot available"></span> Available</span>
       </div>
 
+      <div id="selectedDateLabel" class="selected-label" aria-live="polite"></div>
       <div id="slots"></div>
 
       <template id="slot-day-tpl">

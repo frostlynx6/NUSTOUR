@@ -5,6 +5,7 @@
 
   const slotsEl = document.getElementById('slots');
   const calGrid = document.getElementById('calGrid');
+  const selectedDateLabel = document.getElementById('selectedDateLabel');
   const dayTpl = document.getElementById('slot-day-tpl');
   const itemTpl = document.getElementById('slot-item-tpl');
 
@@ -73,6 +74,7 @@
 
   async function render() {
     slotsEl.innerHTML = '';
+    if (selectedDateLabel) selectedDateLabel.textContent = '';
     const day = nextWeekday();
     const dayISO = fmtDateISO(day);
     addDayBlock(day);
@@ -239,6 +241,13 @@
     const today = new Date();
     const start = nextWeekday(today);
     const days = [];
+    // Add offset blanks so grid aligns with Mon..Sun headers
+    const mondayIndex = ((start.getDay() + 6) % 7); // Mon=0..Sun=6
+    for (let i = 0; i < mondayIndex; i++) {
+      const blank = document.createElement('div');
+      blank.className = 'cal-day disabled blank';
+      calGrid.appendChild(blank);
+    }
     for (let i = 0; i < 21; i++) {
       const d = new Date(start);
       d.setDate(start.getDate() + i);
@@ -264,6 +273,10 @@
           div.classList.add('selected');
           // Add or replace a block for this date
           addOrReplaceDay(iso);
+          if (selectedDateLabel) {
+            selectedDateLabel.textContent = new Date(iso + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
+            selectedDateLabel.textContent = `Selected: ${selectedDateLabel.textContent}`;
+          }
         });
         div.addEventListener('keydown', (ev) => {
           if (ev.key === 'Enter' || ev.key === ' ') {
