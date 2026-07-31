@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NUSTOUR — Main</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="/index.html">NUSTOUR</a>
+        <nav class="nav">
+          <a href="/index.html" class="active">Main Page</a>
+          <a href="/about.html">About NUS Tour</a>
+          <a href="/book.html" class="cta">Book Now</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero fade-in">
+        <div class="container hero-inner">
+          <div class="hero-copy">
+            <h1>Explore NUS with NUSTOUR</h1>
+            <p>Discover the National University of Singapore through curated, student-led tours designed for visitors and tourists.</p>
+            <div class="docent-card card">
+              <div class="title">Official Liscensed Student Docent</div>
+              <div class="id">1190874</div>
+            </div>
+            <div class="hero-actions">
+              <a href="/book.html" class="button primary">Book Now</a>
+              <a href="/about.html" class="button ghost">About NUS Tour</a>
+            </div>
+          </div>
+          <div class="hero-media">
+            <div class="image-frame shimmer">
+              <img src="assets/images/hero-placeholder.jpg" alt="Upload your NUS campus image later" />
+            </div>
+            <small class="hint">Add your images under assets/images/</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="features container">
+        <div class="feature">
+          <h3>Guided Campus Highlights</h3>
+          <p>See iconic landmarks, faculties, and hidden gems across the campus with friendly, knowledgeable student docents.</p>
+        </div>
+        <div class="feature">
+          <h3>Simple Weekday Scheduling</h3>
+          <p>Weekday tours, hourly slots between 9am and 4pm. Reserve, pay, and upload proof easily.</p>
+        </div>
+        <div class="feature">
+          <h3>Small Group Experience</h3>
+          <p>Minimum 5 adult-equivalent participants to begin, capped at 20 pax per tour for comfort.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p class="disclaimer">Disclaimer: Any opinion or information on this website does not represent NUS.</p>
+        <p class="copyright">© <span id="year"></span> NUSTOUR</p>
+      </div>
+    </footer>
+
+    <script>
+      document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>

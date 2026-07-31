@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NUSTOUR — Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <style>
+      .admin-wrap { padding: 18px 0 40px; }
+      .admin-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 12px 0; }
+      .admin-row { display: grid; grid-template-columns: 380px 1fr; gap: 16px; }
+      .locks { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+      .reservations { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+      .slot-list { display: grid; gap: 10px; }
+      .slot-card { border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+      .slot-card h4 { margin: 0 0 8px; }
+      .res-item { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; padding: 8px; border: 1px solid var(--border); border-radius: 10px; margin: 6px 0; }
+      .tag { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+      .tag.reserved { background: rgba(232,119,34,0.15); color: var(--nus-orange); }
+      .tag.confirmed { background: rgba(0,61,124,0.15); color: var(--nus-blue); }
+      .adm-toolbar { display: flex; gap: 8px; align-items: center; }
+      .adm-toolbar input { padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="/index.html">NUSTOUR</a>
+        <nav class="nav">
+          <a href="/index.html">Main Page</a>
+          <a href="/about.html">About NUS Tour</a>
+          <a href="/book.html" class="cta">Book Now</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container admin-wrap">
+      <div class="admin-head">
+        <h1>Admin Panel</h1>
+        <div class="adm-toolbar">
+          <input type="password" id="adminKey" placeholder="Enter Admin Key" />
+          <button class="button primary" id="saveKey">Use Key</button>
+        </div>
+      </div>
+
+      <div class="admin-row">
+        <section class="locks">
+          <h3>Lock/Unlock Dates (next 3 weeks)</h3>
+          <div class="calendar" id="adminCal">
+            <div class="cal-head"><strong>Select to toggle lock</strong></div>
+            <div class="cal-grid" id="adminCalGrid"></div>
+          </div>
+        </section>
+
+        <section class="reservations">
+          <h3>Reservations for <span id="selDateText">—</span></h3>
+          <div class="slot-list" id="slotList"></div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p class="disclaimer">Admin access only.</p>
+        <p class="copyright">© <span id="year"></span> NUSTOUR</p>
+      </div>
+    </footer>
+
+    <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+    <script src="assets/js/admin.js"></script>
+  </body>
+</html>

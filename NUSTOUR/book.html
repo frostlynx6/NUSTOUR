@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NUSTOUR — Book Now</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="/index.html">NUSTOUR</a>
+        <nav class="nav">
+          <a href="/index.html">Main Page</a>
+          <a href="/about.html">About NUS Tour</a>
+          <a href="/book.html" class="active cta">Book Now</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container fade-in">
+      <h1>Book Now</h1>
+
+      <section class="calendar" id="calendar">
+        <div class="cal-head">
+          <strong>Choose a date (next 3 weeks)</strong>
+          <small class="hint">Weekdays only. Locked days are unavailable.</small>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+      </section>
+
+      <div class="legend">
+        <span><span class="dot confirmed"></span> Confirmed</span>
+        <span><span class="dot reserved"></span> Reserved</span>
+        <span><span class="dot available"></span> Available</span>
+      </div>
+
+      <div id="slots"></div>
+
+      <template id="slot-day-tpl">
+        <section class="day-block card">
+          <h2 class="day-title"></h2>
+          <div class="grid"></div>
+        </section>
+      </template>
+
+      <template id="slot-item-tpl">
+        <div class="slot">
+          <div class="slot-head">
+            <h3 class="time"></h3>
+            <button class="button sm primary reserve-btn">Reserve</button>
+          </div>
+          <div class="bar">
+            <div class="seg confirmed" style="width:0%"></div>
+            <div class="seg reserved" style="width:0%"></div>
+            <div class="seg available" style="width:100%"></div>
+          </div>
+          <div class="slot-stats">
+            <span class="stat confirmed-stat">Confirmed: 0</span>
+            <span class="stat reserved-stat">Reserved: 0</span>
+            <span class="stat available-stat">Available: 20</span>
+          </div>
+          <div class="slot-notes ae-note">Still needed to start: <span class="needed">5</span> AE</div>
+        </div>
+      </template>
+
+      <dialog id="reserveDialog">
+        <form method="dialog" id="reserveForm" class="dialog-card">
+          <header>
+            <h3>Reserve Slot</h3>
+          </header>
+          <div class="form-row">
+            <label>Date</label>
+            <input type="text" id="resvDate" readonly />
+          </div>
+          <div class="form-row">
+            <label>Time</label>
+            <input type="text" id="resvTime" readonly />
+          </div>
+          <div class="form-row two">
+            <div>
+              <label for="resvAdults">Adults</label>
+              <input type="number" id="resvAdults" min="1" value="1" required />
+            </div>
+            <div>
+              <label for="resvChildren">Children</label>
+              <input type="number" id="resvChildren" min="0" value="0" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <label for="resvName">Full Name</label>
+            <input type="text" id="resvName" required />
+          </div>
+          <div class="form-row">
+            <label for="resvEmail">Email</label>
+            <input type="email" id="resvEmail" required />
+          </div>
+          <div class="form-row info">
+            <p>Minimum 5 Adult-Equivalents (AE) to start. 1 Adult = 2 Children.</p>
+          </div>
+          <menu class="dialog-actions">
+            <button type="button" id="cancelReserve" class="button ghost">Cancel</button>
+            <button type="submit" class="button primary">Continue</button>
+          </menu>
+        </form>
+      </dialog>
+
+      <dialog id="uploadDialog">
+        <form method="dialog" id="uploadForm" class="dialog-card">
+          <header>
+            <h3>Pay & Upload Proof</h3>
+          </header>
+          <div class="qr-row">
+            <div class="qr">
+              <img src="assets/images/payment-qr.png" alt="Payment QR (to be uploaded later)" />
+              <small class="hint">$5 per person</small>
+            </div>
+            <div class="upload">
+              <label for="proof">Upload payment proof</label>
+              <input type="file" id="proof" accept="image/*,application/pdf" required />
+            </div>
+          </div>
+          <div id="uploadStatus" class="status"></div>
+          <menu class="dialog-actions">
+            <button type="button" id="backToReserve" class="button ghost">Back</button>
+            <button type="submit" class="button primary">Submit Proof</button>
+          </menu>
+        </form>
+      </dialog>
+
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p class="disclaimer">Disclaimer: Any opinion or information on this website does not represent NUS.</p>
+        <p class="copyright">© <span id="year"></span> NUSTOUR</p>
+      </div>
+    </footer>
+
+    <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+    <script src="assets/js/book.js"></script>
+  </body>
+  
+</html>
