@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NUSTOUR — About NUS Tour</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="/index.html">NUSTOUR</a>
+        <nav class="nav">
+          <a href="/index.html">Main Page</a>
+          <a href="/about.html" class="active">About NUS Tour</a>
+          <a href="/book.html" class="cta">Book Now</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container narrow fade-in">
+      <h1>About NUS Tour</h1>
+
+      <section class="card">
+        <h2>Introduction</h2>
+        <p>
+          Welcome to NUS TOUR! Here is where you get an opportunity to explore around the top university in Asia -- NUS!
+          Join now to experience a fully dedicated school tour just for you!
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>How to Book</h2>
+        <ol class="steps">
+          <li>Simple go to <a href="/book.html">Book Now</a>, choose the date and time you wish to make a visit!</li>
+          <li>Take note that a minimum of 5 Adult or equivalent children is required to start the tour (1 Adult = 2 Children), with AT LEAST 1 Adult required to be present.</li>
+          <li>There can be a maximum of only 20 person (No matter Adult or Children) per tour.</li>
+          <li>After confirming your slot, enter your email and you will be directed to pay the confirmation fee of $5 per person. Please Pay the amount and upload the proof of payment.</li>
+          <li>You will receive an email once the booking is confirmed. Futher details will be given through the email.</li>
+        </ol>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p class="disclaimer">Disclaimer: Any opinion or information on this website does not represent NUS.</p>
+        <p class="copyright">© <span id="year"></span> NUSTOUR</p>
+      </div>
+    </footer>
+
+    <script>
+      document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>
