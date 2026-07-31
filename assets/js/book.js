@@ -72,6 +72,27 @@
     latestSummary = await res.json();
   }
 
+  function computeDayStatusMap() {
+    const map = {};
+    const days = latestSummary.days || {};
+    for (const dateISO of Object.keys(days)) {
+      const hours = days[dateISO] || {};
+      let hasGrey = false, hasOrange = false, hasRed = false;
+      for (const h of Object.keys(hours)) {
+        const s = hours[h] || {};
+        const total = (s.reserved || 0) + (s.confirmed || 0);
+        const confirmedAE = s.confirmedAE || 0;
+        if (total >= CAPACITY) { hasRed = true; break; }
+        if (confirmedAE >= 5) { hasOrange = true; }
+        else if (total > 0) { hasGrey = true; }
+      }
+      if (hasRed) map[dateISO] = 'red';
+      else if (hasOrange) map[dateISO] = 'orange';
+      else if (hasGrey) map[dateISO] = 'grey';
+    }
+    return map;
+  }
+
   async function render() {
     slotsEl.innerHTML = '';
     if (selectedDateLabel) selectedDateLabel.textContent = '';
@@ -255,6 +276,7 @@
     }
     const bookedDates = new Set(Object.keys(latestSummary.days || {}));
     const lockedDates = new Set(latestSummary.lockedDates || []);
+    const statusMap = computeDayStatusMap();
 
     for (const d of days) {
       const div = document.createElement('div');
@@ -267,6 +289,13 @@
       if (!isWk) div.classList.add('disabled');
       if (bookedDates.has(iso)) div.classList.add('has-bookings');
       if (lockedDates.has(iso)) div.classList.add('locked');
+      const status = statusMap[iso];
+      if (status) {
+        const dot = document.createElement('span');
+        dot.className = `cal-dot cal-dot-${status}`;
+        dot.title = status === 'red' ? 'Some slot is full' : status === 'orange' ? 'A slot has enough to start' : 'Some reservations exist';
+        div.appendChild(dot);
+      }
       if (isWk && !lockedDates.has(iso)) {
         div.addEventListener('click', async () => {
           document.querySelectorAll('.cal-day.selected').forEach(e => e.classList.remove('selected'));
