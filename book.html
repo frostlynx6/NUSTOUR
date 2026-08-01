@@ -12,22 +12,27 @@
   <body>
     <header class="site-header">
       <div class="container header-inner">
-        <a class="brand" href="/index.html">NUSTOUR</a>
-        <nav class="nav">
-          <a href="/index.html">Main Page</a>
-          <a href="/about.html">About NUS Tour</a>
-          <a href="/book.html" class="active cta">Book Now</a>
+        <a class="brand" href="/index.html"><span class="brand-text"><span class="nus">NUS</span> <span class="tour">TOUR</span></span></a>
+        <button id="navToggle" class="nav-toggle" aria-label="Menu">☰</button>
+        <nav class="nav" id="siteNav">
+          <a href="/index.html" data-i18n="nav.main">Main Page</a>
+          <a href="/about.html" data-i18n-html="nav.about_html">About <span class="brand-text"><span class="nus">NUS</span> <span class="tour">TOUR</span></span></a>
+          <a href="/book.html" class="active cta" data-i18n="nav.book">Book Now</a>
+          <select id="langSelect" class="lang-select" aria-label="Language">
+            <option value="cn" data-i18n-option="lang.cn">CN</option>
+            <option value="en" data-i18n-option="lang.en">EN</option>
+          </select>
         </nav>
       </div>
     </header>
 
     <main class="container fade-in">
-      <h1>Book Now</h1>
+      <h1 data-i18n="book.title">Book Now</h1>
 
       <section class="calendar" id="calendar">
         <div class="cal-head">
-          <strong>Choose a date (next 3 weeks)</strong>
-          <small class="hint">Weekdays only. Locked days are unavailable.</small>
+          <strong data-i18n="calendar.choose">Choose a date (next 3 weeks)</strong>
+          <small class="hint" data-i18n="calendar.hint">Weekdays only. Locked days are unavailable.</small>
         </div>
         <div class="cal-weekdays" aria-hidden="true">
           <div>Mon</div>
@@ -39,13 +44,19 @@
           <div>Sun</div>
         </div>
         <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-nav" style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+          <button class="button sm" id="calPrevBtn">‹</button>
+          <div id="calMonthLabel" class="hint"></div>
+          <button class="button sm" id="calNextBtn">›</button>
+        </div>
       </section>
 
       <div class="legend">
-        <span><span class="dot confirmed"></span> Confirmed</span>
-        <span><span class="dot reserved"></span> Reserved</span>
-        <span><span class="dot available"></span> Available</span>
+        <span><span class="dot confirmed"></span> <span data-i18n="legend.confirmed">Confirmed</span></span>
+        <span><span class="dot reserved"></span> <span data-i18n="legend.reserved">Reserved</span></span>
+        <span><span class="dot available"></span> <span data-i18n="legend.available">Available</span></span>
       </div>
+      <p class="hint" style="margin-top:4px;" data-i18n="legend.aeNote">AE = Adult Equivalent (1 Adult = 2 Children)</p>
 
       <div id="selectedDateLabel" class="selected-label" aria-live="polite"></div>
       <div id="slots"></div>
@@ -61,7 +72,7 @@
         <div class="slot">
           <div class="slot-head">
             <h3 class="time"></h3>
-            <button class="button sm primary reserve-btn">Reserve</button>
+            <button class="button sm primary reserve-btn" data-i18n="slot.reserve">Reserve</button>
           </div>
           <div class="bar">
             <div class="seg confirmed" style="width:0%"></div>
@@ -73,7 +84,7 @@
             <span class="stat reserved-stat">Reserved: 0</span>
             <span class="stat available-stat">Available: 20</span>
           </div>
-          <div class="slot-notes ae-note">Still needed to start: <span class="needed">5</span> AE</div>
+          <div class="slot-notes ae-note" data-i18n="slot.needed">Still needed to start: <span class="needed">5</span> AE</div>
         </div>
       </template>
 
@@ -92,40 +103,40 @@
       <dialog id="reserveDialog">
         <form method="dialog" id="reserveForm" class="dialog-card">
           <header>
-            <h3>Reserve Slot</h3>
+            <h3 data-i18n="reserve.title">Reserve Slot</h3>
           </header>
           <div class="form-row">
-            <label>Date</label>
+            <label data-i18n="reserve.date">Date</label>
             <input type="text" id="resvDate" readonly />
           </div>
           <div class="form-row">
-            <label>Time</label>
+            <label data-i18n="reserve.time">Time</label>
             <input type="text" id="resvTime" readonly />
           </div>
           <div class="form-row two">
             <div>
-              <label for="resvAdults">Adults</label>
+              <label for="resvAdults" data-i18n="reserve.adults">Adults</label>
               <input type="number" id="resvAdults" min="1" value="1" required />
             </div>
             <div>
-              <label for="resvChildren">Children</label>
+              <label for="resvChildren" data-i18n="reserve.children">Children</label>
               <input type="number" id="resvChildren" min="0" value="0" required />
             </div>
           </div>
           <div class="form-row">
-            <label for="resvName">Full Name</label>
+            <label for="resvName" data-i18n="reserve.name">Full Name</label>
             <input type="text" id="resvName" required />
           </div>
           <div class="form-row">
-            <label for="resvEmail">Email</label>
+            <label for="resvEmail" data-i18n="reserve.email">Email</label>
             <input type="email" id="resvEmail" required />
           </div>
           <div class="form-row info">
-            <p>Minimum 5 Adult-Equivalents (AE) to start. 1 Adult = 2 Children.</p>
+            <p data-i18n="reserve.note">Minimum 5 Adult-Equivalents (AE) to start. 1 Adult = 2 Children.</p>
           </div>
           <menu class="dialog-actions">
-            <button type="button" id="cancelReserve" class="button ghost">Cancel</button>
-            <button type="submit" class="button primary">Continue</button>
+            <button type="button" id="cancelReserve" class="button ghost" data-i18n="btn.cancel">Cancel</button>
+            <button type="submit" class="button primary" data-i18n="btn.continue">Continue</button>
           </menu>
         </form>
       </dialog>
@@ -133,22 +144,26 @@
       <dialog id="uploadDialog">
         <form method="dialog" id="uploadForm" class="dialog-card">
           <header>
-            <h3>Pay & Upload Proof</h3>
+            <h3 data-i18n="upload.title">Pay & Upload Proof</h3>
           </header>
           <div class="qr-row">
             <div class="qr">
               <img src="assets/images/payment-qr.png" alt="Payment QR (to be uploaded later)" />
-              <small class="hint">$5 per person</small>
+              <small class="hint" data-i18n="upload.hint">$5 per person</small>
             </div>
             <div class="upload">
-              <label for="proof">Upload payment proof</label>
+              <label for="proof" data-i18n="upload.label">Upload payment proof</label>
               <input type="file" id="proof" accept="image/*,application/pdf" required />
             </div>
           </div>
+          <section class="card" style="margin-top:10px;">
+            <h4 data-i18n="receipt.title">Receipt</h4>
+            <div id="receipt" class="slot-stats" style="display:flex;flex-wrap:wrap;gap:12px;"></div>
+          </section>
           <div id="uploadStatus" class="status"></div>
           <menu class="dialog-actions">
-            <button type="button" id="backToReserve" class="button ghost">Back</button>
-            <button type="submit" class="button primary">Submit Proof</button>
+            <button type="button" id="backToReserve" class="button ghost" data-i18n="btn.back">Back</button>
+            <button type="submit" class="button primary" data-i18n="btn.submitProof">Submit Proof</button>
           </menu>
         </form>
       </dialog>
@@ -157,11 +172,13 @@
 
     <footer class="site-footer">
       <div class="container footer-inner">
-        <p class="disclaimer">Disclaimer: Any opinion or information on this website does not represent NUS.</p>
+        <p class="disclaimer" data-i18n="disclaimer">Disclaimer: Any opinion or information on this website does not represent NUS.</p>
         <p class="copyright">© <span id="year"></span> NUSTOUR</p>
       </div>
     </footer>
 
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/site.js"></script>
     <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
     <script src="assets/js/book.js"></script>
   </body>

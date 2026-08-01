@@ -5,6 +5,9 @@
 
   const slotsEl = document.getElementById('slots');
   const calGrid = document.getElementById('calGrid');
+  const calPrevBtn = document.getElementById('calPrevBtn');
+  const calNextBtn = document.getElementById('calNextBtn');
+  const calMonthLabel = document.getElementById('calMonthLabel');
   const selectedDateLabel = document.getElementById('selectedDateLabel');
   const dayTpl = document.getElementById('slot-day-tpl');
   const itemTpl = document.getElementById('slot-item-tpl');
@@ -33,6 +36,7 @@
 
   let pendingSelection = null; // { dateISO, hour, adults, children, name, email }
   let latestSummary = { days: {}, lockedDates: [] };
+  let viewMonth = null; // first day of current month in calendar view
 
   function isWeekday(d) {
     const wd = d.getDay(); // 0 Sun - 6 Sat
@@ -83,6 +87,12 @@
     const res = await fetch(`/api/slots?start=${start}&end=${end}`);
     if (!res.ok) throw new Error('Failed to fetch slots');
     latestSummary = await res.json();
+  }
+
+  async function fetchSummaryForMonth(monthDate) {
+    const first = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+    const last = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+    await fetchSummary(first, last);
   }
 
   function computeDayStatusMap() {
@@ -151,9 +161,9 @@
       barConfirmed.style.width = pctConfirmed + '%';
       barReserved.style.width = pctReserved + '%';
       barAvail.style.width = pctAvail + '%';
-      statConfirmed.textContent = `Confirmed: ${st.confirmed}`;
-      statReserved.textContent = `Reserved: ${st.reserved}`;
-      statAvailable.textContent = `Available: ${st.available}`;
+      statConfirmed.textContent = (window.NUSI18N?.t('stats.confirmed', { n: st.confirmed })) || `Confirmed: ${st.confirmed}`;
+      statReserved.textContent = (window.NUSI18N?.t('stats.reserved', { n: st.reserved })) || `Reserved: ${st.reserved}`;
+      statAvailable.textContent = (window.NUSI18N?.t('stats.available', { n: st.available })) || `Available: ${st.available}`;
       neededEl.textContent = String(st.neededAE);
 
       const isLocked = latestSummary.lockedDates?.includes?.(dateISO);
@@ -161,10 +171,10 @@
       const atCapacity = st.available <= 0;
       if (isLocked || isWeekend) {
         reserveBtn.disabled = true;
-        reserveBtn.textContent = isLocked ? 'Locked' : 'Weekend';
+        reserveBtn.textContent = isLocked ? (window.NUSI18N?.t('status.locked') || 'Locked') : (window.NUSI18N?.t('status.weekend') || 'Weekend');
       } else if (atCapacity) {
         reserveBtn.disabled = true;
-        reserveBtn.textContent = 'Full';
+        reserveBtn.textContent = (window.NUSI18N?.t('status.full') || 'Full');
       } else {
         reserveBtn.addEventListener('click', () => openReserve(dateISO, h, st));
       }
@@ -202,28 +212,42 @@
     const email = resvEmail.value.trim();
 
     if (!name || !email) return;
-    if (adults < 1) { alert('At least 1 Adult is required to be present.'); return; }
+    if (adults < 1) { alert((window.NUSI18N?.t('alerts.adultRequired')) || 'At least 1 Adult is required to be present.'); return; }
 
     // Capacity check against current server summary
     const st = slotStatsFromSummary(pendingSelection.dateISO, pendingSelection.hour);
     const needed = CAPACITY - (st.confirmed + st.reserved);
     const pax = adults + children;
-    if (pax > needed) { alert(`Only ${needed} slots left for this time.`); return; }
+    if (pax > needed) { alert((window.NUSI18N?.t('alerts.onlyLeft', { n: needed })) || `Only ${needed} slots left for this time.`); return; }
 
     pendingSelection = { ...pendingSelection, adults, children, name, email };
     closeReserve();
     uploadStatus.textContent = '';
     uploadInput.value = '';
     uploadDialog.showModal();
+    // Build receipt (confirmation fee $5 per person)
+    const pricePer = 5;
+    const paxAdults = adults;
+    const paxChildren = children;
+    const subtotal = (paxAdults + paxChildren) * pricePer;
+    const rc = document.getElementById('receipt');
+    if (rc) {
+      rc.innerHTML = '';
+      const add = (label, val) => { const span = document.createElement('span'); span.textContent = `${label}: ${val}`; rc.appendChild(span); };
+      add((window.NUSI18N?.t('receipt.adults')) || 'Adults', `${paxAdults} × $${pricePer} = $${paxAdults*pricePer}`);
+      add((window.NUSI18N?.t('receipt.children')) || 'Children', `${paxChildren} × $${pricePer} = $${paxChildren*pricePer}`);
+      add((window.NUSI18N?.t('receipt.subtotal')) || 'Subtotal', `$${subtotal}`);
+      add((window.NUSI18N?.t('receipt.total')) || 'Total', `$${subtotal}`);
+    }
   });
 
   uploadForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!pendingSelection) return;
     const file = uploadInput.files && uploadInput.files[0];
-    if (!file) { alert('Please upload a payment proof.'); return; }
+    if (!file) { alert((window.NUSI18N?.t('alerts.uploadProof')) || 'Please upload a payment proof.'); return; }
 
-    uploadStatus.textContent = 'Submitting...';
+    uploadStatus.textContent = (window.NUSI18N?.t('status.submitting')) || 'Submitting...';
     try {
       const base64 = await fileToBase64(file);
       const payload = {
@@ -249,11 +273,11 @@
       await primeSummary();
       await render();
 
-      uploadStatus.textContent = 'Submitted! Your slot is reserved for 48 hours pending verification.';
+      uploadStatus.textContent = (window.NUSI18N?.t('status.submitted')) || 'Submitted! Your slot is reserved for 48 hours pending verification.';
       setTimeout(() => closeUpload(), 1200);
     } catch (err) {
       console.error(err);
-      uploadStatus.textContent = 'Error submitting proof. Please try again.';
+      uploadStatus.textContent = (window.NUSI18N?.t('status.error')) || 'Error submitting proof. Please try again.';
     }
   });
 
@@ -273,23 +297,22 @@
   function buildCalendar() {
     calGrid.innerHTML = '';
     const today = new Date();
-    const start = nextWeekday(today);
+    if (!viewMonth) viewMonth = new Date(nextWeekday(today).getFullYear(), nextWeekday(today).getMonth(), 1);
+    const first = new Date(viewMonth.getFullYear(), viewMonth.getMonth(), 1);
+    const last = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 0);
     const days = [];
-    // Add offset blanks so grid aligns with Mon..Sun headers
-    const mondayIndex = ((start.getDay() + 6) % 7); // Mon=0..Sun=6
+    const mondayIndex = ((first.getDay() + 6) % 7);
     for (let i = 0; i < mondayIndex; i++) {
       const blank = document.createElement('div');
       blank.className = 'cal-day disabled blank';
       calGrid.appendChild(blank);
     }
-    for (let i = 0; i < 21; i++) {
-      const d = new Date(start);
-      d.setDate(start.getDate() + i);
-      days.push(d);
-    }
+    for (let d = new Date(first); d <= last; d.setDate(d.getDate() + 1)) days.push(new Date(d));
     const bookedDates = new Set(Object.keys(latestSummary.days || {}));
     const lockedDates = new Set(latestSummary.lockedDates || []);
     const statusMap = computeDayStatusMap();
+    const allowStart = nextWeekday(new Date());
+    const allowEnd = new Date(allowStart); allowEnd.setDate(allowStart.getDate() + 20);
 
     for (const d of days) {
       const div = document.createElement('div');
@@ -299,7 +322,8 @@
       div.setAttribute('tabindex', '0');
       div.textContent = d.getDate();
       const isWk = isWeekday(d);
-      if (!isWk) div.classList.add('disabled');
+      const inRange = d >= allowStart && d <= allowEnd;
+      if (!isWk || !inRange) div.classList.add('disabled');
       if (bookedDates.has(iso)) div.classList.add('has-bookings');
       if (lockedDates.has(iso)) div.classList.add('locked');
       const status = statusMap[iso];
@@ -309,26 +333,23 @@
         dot.title = status === 'red' ? 'Some slot is full' : status === 'orange' ? 'A slot has enough to start' : 'Some reservations exist';
         div.appendChild(dot);
       }
-      if (isWk && !lockedDates.has(iso)) {
+      if (isWk && inRange && !lockedDates.has(iso)) {
         div.addEventListener('click', async () => {
           document.querySelectorAll('.cal-day.selected').forEach(e => e.classList.remove('selected'));
           div.classList.add('selected');
-          // Open time picker for this date instead of changing visible blocks
           await openTimePicker(iso);
           if (selectedDateLabel) {
-            selectedDateLabel.textContent = localDateFromISO(iso).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
-            selectedDateLabel.textContent = `Selected: ${selectedDateLabel.textContent}`;
+            const lab = localDateFromISO(iso).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
+            selectedDateLabel.textContent = `${(window.NUSI18N?.t('selected.prefix')) || 'Selected:'} ${lab}`;
           }
         });
         div.addEventListener('keydown', (ev) => {
-          if (ev.key === 'Enter' || ev.key === ' ') {
-            ev.preventDefault();
-            div.click();
-          }
+          if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); div.click(); }
         });
       }
       calGrid.appendChild(div);
     }
+    if (calMonthLabel) calMonthLabel.textContent = first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
   }
 
   function addOrReplaceDay(dateISO) {
@@ -337,6 +358,19 @@
     addDayBlock(localDateFromISO(dateISO));
     slotsEl.querySelector(`.day-block[data-date="${dateISO}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+
+  calPrevBtn?.addEventListener('click', async () => {
+    if (!viewMonth) return;
+    viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1);
+    try { await fetchSummaryForMonth(viewMonth); } catch {}
+    buildCalendar();
+  });
+  calNextBtn?.addEventListener('click', async () => {
+    if (!viewMonth) return;
+    viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1);
+    try { await fetchSummaryForMonth(viewMonth); } catch {}
+    buildCalendar();
+  });
 
   async function openTimePicker(dateISO) {
     // Get fresh summary for the selected day only
@@ -354,7 +388,8 @@
       }
     } catch (_) {}
 
-    dateTimesTitle.textContent = `Choose a Time — ${localDateFromISO(dateISO).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}`;
+    const tpTitle = (window.NUSI18N?.t('timepicker.title')) || 'Choose a Time';
+    dateTimesTitle.textContent = `${tpTitle} — ${localDateFromISO(dateISO).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}`;
     dateTimesGrid.innerHTML = '';
     const isLocked = latestSummary.lockedDates?.includes?.(dateISO);
     const isWeekend = !isWeekday(localDateFromISO(dateISO));
@@ -378,18 +413,18 @@
       barConfirmed.style.width = pctConfirmed + '%';
       barReserved.style.width = pctReserved + '%';
       barAvail.style.width = pctAvail + '%';
-      statConfirmed.textContent = `Confirmed: ${st.confirmed}`;
-      statReserved.textContent = `Reserved: ${st.reserved}`;
-      statAvailable.textContent = `Available: ${st.available}`;
+      statConfirmed.textContent = (window.NUSI18N?.t('stats.confirmed', { n: st.confirmed })) || `Confirmed: ${st.confirmed}`;
+      statReserved.textContent = (window.NUSI18N?.t('stats.reserved', { n: st.reserved })) || `Reserved: ${st.reserved}`;
+      statAvailable.textContent = (window.NUSI18N?.t('stats.available', { n: st.available })) || `Available: ${st.available}`;
       neededEl.textContent = String(st.neededAE);
 
       const atCapacity = st.available <= 0;
       if (isLocked || isWeekend) {
         reserveBtn.disabled = true;
-        reserveBtn.textContent = isLocked ? 'Locked' : 'Weekend';
+        reserveBtn.textContent = isLocked ? (window.NUSI18N?.t('status.locked') || 'Locked') : (window.NUSI18N?.t('status.weekend') || 'Weekend');
       } else if (atCapacity) {
         reserveBtn.disabled = true;
-        reserveBtn.textContent = 'Full';
+        reserveBtn.textContent = (window.NUSI18N?.t('status.full') || 'Full');
       } else {
         reserveBtn.addEventListener('click', () => {
           pendingSelection = { dateISO, hour: h };

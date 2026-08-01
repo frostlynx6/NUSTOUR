@@ -12,64 +12,65 @@
   <body>
     <header class="site-header">
       <div class="container header-inner">
-        <a class="brand" href="/index.html">NUSTOUR</a>
-        <nav class="nav">
-          <a href="/index.html" class="active">Main Page</a>
-          <a href="/about.html">About NUS Tour</a>
-          <a href="/book.html" class="cta">Book Now</a>
+        <a class="brand" href="/index.html"><span class="brand-text"><span class="nus">NUS</span> <span class="tour">TOUR</span></span></a>
+        <button id="navToggle" class="nav-toggle" aria-label="Menu">☰</button>
+        <nav class="nav" id="siteNav">
+          <a href="/index.html" class="active" data-i18n="nav.main">Main Page</a>
+          <a href="/about.html" data-i18n-html="nav.about_html">About <span class="brand-text"><span class="nus">NUS</span> <span class="tour">TOUR</span></span></a>
+          <a href="/book.html" class="cta" data-i18n="nav.book">Book Now</a>
+          <select id="langSelect" class="lang-select" aria-label="Language">
+            <option value="cn" data-i18n-option="lang.cn">CN</option>
+            <option value="en" data-i18n-option="lang.en">EN</option>
+          </select>
         </nav>
       </div>
     </header>
 
     <main>
-      <section class="hero fade-in">
+      <section class="hero split fade-in">
+        <div class="hero-bg-right"></div>
         <div class="container hero-inner">
           <div class="hero-copy">
-            <h1>Explore NUS with NUSTOUR</h1>
-            <p>Discover the National University of Singapore through curated, student-led tours designed for visitors and tourists.</p>
+            <h1 data-i18n-html="hero.title_html">Explore NUS with <span class="brand-text"><span class="nus">NUS</span> <span class="tour">TOUR</span></span></h1>
+            <p data-i18n="hero.desc">Discover the National University of Singapore through curated, student-led tours designed for visitors and tourists.</p>
             <div class="docent-card card">
-              <div class="title">Official Liscensed Student Docent</div>
+              <div class="title" data-i18n="docent.title">Official Licensed Student Docent</div>
               <div class="id">1190874</div>
             </div>
             <div class="hero-actions">
-              <a href="/book.html" class="button primary">Book Now</a>
-              <a href="/about.html" class="button ghost">About NUS Tour</a>
+              <a href="/book.html" class="button primary" data-i18n="hero.bookNow">Book Now</a>
+              <a href="/about.html" class="button ghost" data-i18n="hero.about">About NUS Tour</a>
             </div>
           </div>
-          <div class="hero-media">
-            <div class="image-frame shimmer">
-              <img src="assets/images/nus-hero.jpg" alt="NUS campus" />
-            </div>
-            <small class="hint">Add your images under assets/images/</small>
-          </div>
+          <div class="hero-media"></div>
         </div>
       </section>
 
       <section class="features container">
         <div class="feature">
-          <h3>Guided Campus Highlights</h3>
-          <p>See iconic landmarks, faculties, and hidden gems across the campus with friendly, knowledgeable student docents.</p>
+          <h3 data-i18n="features.1.title">Guided Campus Highlights</h3>
+          <p data-i18n="features.1.desc">See iconic landmarks, faculties, and hidden gems across the campus with friendly, knowledgeable student docents.</p>
         </div>
         <div class="feature">
-          <h3>Simple Weekday Scheduling</h3>
-          <p>Weekday tours, hourly slots between 9am and 4pm. Reserve, pay, and upload proof easily.</p>
+          <h3 data-i18n="features.2.title">Simple Weekday Scheduling</h3>
+          <p data-i18n="features.2.desc">Weekday tours, hourly slots between 9am and 4pm. Reserve, pay, and upload proof easily.</p>
         </div>
         <div class="feature">
-          <h3>Small Group Experience</h3>
-          <p>Minimum 5 adult-equivalent participants to begin, capped at 20 pax per tour for comfort.</p>
+          <h3 data-i18n="features.3.title">Small Group Experience</h3>
+          <p data-i18n="features.3.desc">Minimum 5 adult-equivalent participants to begin, capped at 20 pax per tour for comfort.</p>
         </div>
       </section>
     </main>
 
     <footer class="site-footer">
       <div class="container footer-inner">
-        <p class="disclaimer">Disclaimer: Any opinion or information on this website does not represent NUS.</p>
+        <p class="disclaimer" data-i18n="disclaimer">Disclaimer: Any opinion or information on this website does not represent NUS.</p>
         <p class="copyright">© <span id="year"></span> NUSTOUR</p>
       </div>
     </footer>
 
-    <script>
-      document.getElementById('year').textContent = new Date().getFullYear();
-    </script>
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/site.js"></script>
+    <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
   </body>
 </html>

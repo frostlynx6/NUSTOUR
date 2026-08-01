@@ -12,47 +12,68 @@
   <body>
     <header class="site-header">
       <div class="container header-inner">
-        <a class="brand" href="/index.html">NUSTOUR</a>
-        <nav class="nav">
-          <a href="/index.html">Main Page</a>
-          <a href="/about.html" class="active">About NUS Tour</a>
-          <a href="/book.html" class="cta">Book Now</a>
+        <a class="brand" href="/index.html"><span class="brand-text"><span class="nus">NUS</span> <span class="tour">TOUR</span></span></a>
+        <button id="navToggle" class="nav-toggle" aria-label="Menu">☰</button>
+        <nav class="nav" id="siteNav">
+          <a href="/index.html" data-i18n="nav.main">Main Page</a>
+          <a href="/about.html" class="active" data-i18n-html="nav.about_html">About <span class="brand-text"><span class="nus">NUS</span> <span class="tour">TOUR</span></span></a>
+          <a href="/book.html" class="cta" data-i18n="nav.book">Book Now</a>
+          <select id="langSelect" class="lang-select" aria-label="Language">
+            <option value="cn" data-i18n-option="lang.cn">CN</option>
+            <option value="en" data-i18n-option="lang.en">EN</option>
+          </select>
         </nav>
       </div>
     </header>
 
     <main class="container narrow fade-in">
-      <h1>About NUS Tour</h1>
+      <h1 data-i18n-html="about.title_html">About <span class="brand-text"><span class="nus">NUS</span> <span class="tour">TOUR</span></span></h1>
 
       <section class="card">
-        <h2>Introduction</h2>
-        <p>
-          Welcome to NUS TOUR! Here is where you get an opportunity to explore around the top university in Asia -- NUS!
-          Join now to experience a fully dedicated school tour just for you!
-        </p>
+        <h2 data-i18n="about.intro.title">Introduction</h2>
+        <p data-i18n="about.intro.text">Welcome to NUS TOUR! Here is where you get an opportunity to explore around the top university in Asia -- NUS! Join now to experience a fully dedicated school tour just for you!</p>
       </section>
 
       <section class="card">
-        <h2>How to Book</h2>
+        <h2 data-i18n="about.how.title">How to Book</h2>
         <ol class="steps">
-          <li>Simple go to <a href="/book.html">Book Now</a>, choose the date and time you wish to make a visit!</li>
-          <li>Take note that a minimum of 5 Adult or equivalent children is required to start the tour (1 Adult = 2 Children), with AT LEAST 1 Adult required to be present.</li>
-          <li>There can be a maximum of only 20 person (No matter Adult or Children) per tour.</li>
-          <li>After confirming your slot, enter your email and you will be directed to pay the confirmation fee of $5 per person. Please Pay the amount and upload the proof of payment.</li>
-          <li>You will receive an email once the booking is confirmed. Futher details will be given through the email.</li>
+          <li data-i18n="about.how.1">Simple go to Book Now, choose the date and time you wish to make a visit!</li>
+          <li data-i18n="about.how.2">A minimum of 5 Adult or equivalent children is required...</li>
+          <li data-i18n="about.how.3">There can be a maximum...</li>
+          <li data-i18n="about.how.4">After confirming your slot...</li>
+          <li data-i18n="about.how.5">You will receive an email...</li>
         </ol>
+      </section>
+
+      <section class="card">
+        <h2 data-i18n="about.price.title">Pricing</h2>
+        <div class="features" style="grid-template-columns: repeat(3, 1fr); padding: 0; gap: 12px;">
+          <div class="feature">
+            <h3 data-i18n="about.price.confirmation">Confirmation Fee</h3>
+            <p data-i18n="about.price.perPerson">$5 per person</p>
+          </div>
+          <div class="feature">
+            <h3 data-i18n="about.price.ae">Adult Equivalent</h3>
+            <p data-i18n="about.price.ae">Adult Equivalent: 1 Adult = 2 Children</p>
+          </div>
+          <div class="feature">
+            <h3 data-i18n="about.price.group">Group Size</h3>
+            <p data-i18n="about.price.group">Minimum 5 AE, Maximum 20 pax</p>
+          </div>
+        </div>
+        <p class="hint" style="margin-top:10px;" data-i18n="legend.aeNote">AE = Adult Equivalent (1 Adult = 2 Children)</p>
       </section>
     </main>
 
     <footer class="site-footer">
       <div class="container footer-inner">
-        <p class="disclaimer">Disclaimer: Any opinion or information on this website does not represent NUS.</p>
+        <p class="disclaimer" data-i18n="disclaimer">Disclaimer: Any opinion or information on this website does not represent NUS.</p>
         <p class="copyright">© <span id="year"></span> NUSTOUR</p>
       </div>
     </footer>
 
-    <script>
-      document.getElementById('year').textContent = new Date().getFullYear();
-    </script>
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/site.js"></script>
+    <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
   </body>
 </html>

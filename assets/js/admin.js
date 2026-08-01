@@ -4,6 +4,7 @@
   const selDateText = document.getElementById('selDateText');
   const adminKeyInput = document.getElementById('adminKey');
   const saveKeyBtn = document.getElementById('saveKey');
+  const adminStatus = document.getElementById('adminStatus');
 
   const SLOT_START = 9, SLOT_END = 16;
   let adminKey = sessionStorage.getItem('nustourAdminKey') || '';
@@ -15,7 +16,7 @@
     adminKey = adminKeyInput.value.trim();
     if (!adminKey) return alert('Enter an Admin Key');
     sessionStorage.setItem('nustourAdminKey', adminKey);
-    alert('Admin key saved for this session.');
+    alert((window.NUSI18N?.t('admin.keySaved')) || 'Admin key saved for this session.');
   });
 
   function isWeekday(d) { const wd = d.getDay(); return wd >= 1 && wd <= 5; }
@@ -39,9 +40,10 @@
       headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
       body: JSON.stringify({ action, date: dateISO })
     });
-    if (!resp.ok) return alert('Failed to toggle lock');
+    if (!resp.ok) { alert((window.NUSI18N?.t('admin.failedToggle')) || 'Failed to toggle lock'); return; }
     await refreshLocked();
     buildCalendar();
+    if (adminStatus) adminStatus.textContent = `${dateISO} ${locked.has(dateISO) ? 'locked' : 'unlocked'}`;
   }
 
   function buildCalendar() {
@@ -70,7 +72,7 @@
     slotList.innerHTML = '';
     const url = `/api/admin?date=${dateISO}`;
     const resp = await fetch(url, { headers: { 'X-Admin-Key': adminKey || '' } });
-    if (!resp.ok) { slotList.textContent = 'Failed to load.'; return; }
+    if (!resp.ok) { slotList.textContent = (window.NUSI18N?.t('admin.failedLoad')) || 'Failed to load.'; return; }
     const data = await resp.json();
     const hours = data.hours || {};
     for (let h = SLOT_START; h <= SLOT_END; h++) {
@@ -80,16 +82,18 @@
       const time = new Date(); time.setHours(h,0,0,0);
       card.innerHTML = `<h4>${time.toLocaleTimeString(undefined,{hour:'numeric'})}</h4>`;
       const list = document.createElement('div');
-      if (!row) { list.textContent = 'No reservations.'; }
+      if (!row) { list.textContent = (window.NUSI18N?.t('admin.noReservations')) || 'No reservations.'; }
       else {
         for (const r of row.reservations) {
           const item = document.createElement('div');
           item.className = 'res-item';
           const tag = `<span class="tag ${r.status}">${r.status.toUpperCase()}</span>`;
+          const btnConfirm = (window.NUSI18N?.t('admin.confirm')) || 'Confirm';
+          const btnDelete = (window.NUSI18N?.t('admin.delete')) || 'Delete';
           item.innerHTML = `
             <div>${tag} ${r.name} — ${r.email} · A:${r.adults} C:${r.children}</div>
-            <button class="button sm" data-act="confirm">Confirm</button>
-            <button class="button sm ghost" data-act="delete">Delete</button>
+            <button class="button sm" data-act="confirm">${btnConfirm}</button>
+            <button class="button sm ghost" data-act="delete">${btnDelete}</button>
           `;
           const confirmBtn = item.querySelector('[data-act="confirm"]');
           const deleteBtn = item.querySelector('[data-act="delete"]');
@@ -111,7 +115,7 @@
       headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
       body: JSON.stringify({ action, date, hour, id })
     });
-    if (!resp.ok) return alert('Failed');
+    if (!resp.ok) return alert((window.NUSI18N?.t('admin.failedAction')) || 'Failed');
     await loadReservations(selectedDateISO);
   }
 
