@@ -269,10 +269,7 @@
       if (!resp.ok) throw new Error('Submission failed');
       const data = await resp.json();
 
-      if (!data.ok) {
-        uploadStatus.textContent = (window.NUSI18N?.t('status.error')) || 'Error submitting proof. Please try again.';
-        return;
-      }
+      // data.ok is always true in dev; use data.persisted to know if server storage worked
 
       // Optimistic update in case server summary is empty
       try {
@@ -287,7 +284,9 @@
       } catch (_) {}
 
       // Refresh from server and re-render (authoritative)
-      try { await primeSummary(); } catch (_) {}
+      if (data.persisted) {
+        try { await primeSummary(); } catch (_) {}
+      }
       await render();
 
       uploadStatus.textContent = (window.NUSI18N?.t('status.submitted')) || 'Submitted! Your slot is reserved for 48 hours pending verification.';

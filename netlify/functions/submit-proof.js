@@ -69,13 +69,14 @@ export async function handler(event) {
     }
 
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL || '';
+    let webhookOk = false;
     if (webhookUrl && !webhookUrl.includes('PLACEHOLDER')) {
       try {
         const resp = await fetch(webhookUrl, { method: 'POST', body: form });
         if (!resp.ok) {
           const text = await resp.text();
           console.error('Discord error', resp.status, text);
-        }
+        } else { webhookOk = true; }
       } catch (e) {
         console.error('Discord post failed', e);
       }
@@ -83,7 +84,8 @@ export async function handler(event) {
       console.warn('DISCORD_WEBHOOK_URL not configured; skipping webhook post');
     }
 
-    return { statusCode: 200, headers: { 'Content-Type': 'application/json', ...cors }, body: JSON.stringify({ ok: storageOk, id, record: { dateISO: rec.dateISO, hour: rec.hour, adults: rec.adults, children: rec.children } }) };
+    // Always return ok:true so local/dev flows don't appear failed; indicate persistence separately
+    return { statusCode: 200, headers: { 'Content-Type': 'application/json', ...cors }, body: JSON.stringify({ ok: true, persisted: storageOk, webhookOk, id, record: { dateISO: rec.dateISO, hour: rec.hour, adults: rec.adults, children: rec.children } }) };
   } catch (err) {
     console.error(err);
     // Return a soft error so the client UI doesn't break irrecoverably

@@ -1,4 +1,4 @@
-import { getLockedDates, setLockedDates, getReservations, putReservations, summarize, cleanupExpired } from './_lib/store.mjs';
+import { getLockedDates, setLockedDates, getReservations, putReservations, summarize, cleanupExpired, wipeAllReservations } from './_lib/store.mjs';
 
 export async function handler(event) {
   const cors = baseCors();
@@ -53,6 +53,23 @@ export async function handler(event) {
       if (action === 'deleteReservation') list.splice(idx, 1);
       await putReservations(date, hour, list);
       return json({ ok: true }, cors);
+    }
+
+    if (action === 'setSlotCounts') {
+      const { date, hour, confirmed, reserved } = body;
+      if (!date || typeof hour === 'undefined') return err(400, 'date, hour required', cors);
+      const c = Number(confirmed||0), r = Number(reserved||0);
+      if (c < 0 || r < 0 || c + r > 20) return err(400, 'invalid counts', cors);
+      const list = [];
+      for (let i=0;i<c;i++) list.push({ id: `admin-c-${i+1}`, dateISO: date, hour, adults: 1, children: 0, name: 'admin', email: '', status: 'confirmed', createdAt: Date.now() });
+      for (let i=0;i<r;i++) list.push({ id: `admin-r-${i+1}`, dateISO: date, hour, adults: 1, children: 0, name: 'admin', email: '', status: 'reserved', createdAt: Date.now(), expiresAt: Date.now()+48*60*60*1000 });
+      await putReservations(date, hour, list);
+      return json({ ok: true }, cors);
+    }
+
+    if (action === 'wipeAll') {
+      const out = await wipeAllReservations();
+      return json({ ok: true, ...out }, cors);
     }
 
     return err(400, 'Unknown action', cors);

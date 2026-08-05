@@ -51,3 +51,39 @@ export async function cleanupExpired(dateISO, hour) {
   }
   return filtered;
 }
+
+// Admin helpers
+export async function listKeys(prefix = '') {
+  const store = getStore({ name: SLOTS_BUCKET });
+  const keys = [];
+  try {
+    const iter = store.list ? store.list({ prefix }) : null;
+    if (iter) {
+      for await (const k of iter) {
+        // k can be string or { key }
+        const key = typeof k === 'string' ? k : (k.key || '');
+        if (key) keys.push(key);
+      }
+    }
+  } catch (e) {
+    console.error('listKeys failed', e);
+  }
+  return keys;
+}
+
+export async function deleteKey(key) {
+  const store = getStore({ name: SLOTS_BUCKET });
+  try {
+    if (store.delete) await store.delete(key);
+    else await store.set(key, JSON.stringify({ reservations: [] }));
+  } catch (e) {
+    console.error('deleteKey failed', e);
+  }
+}
+
+export async function wipeAllReservations() {
+  const keys = await listKeys('slot:');
+  await Promise.all(keys.map(k => deleteKey(k)));
+  await setLockedDates([]);
+  return { wiped: keys.length };
+}

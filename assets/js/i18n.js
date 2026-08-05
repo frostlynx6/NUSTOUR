@@ -98,6 +98,10 @@
       'admin.failedToggle': 'Failed to toggle lock',
       'admin.failedLoad': 'Failed to load.',
       'admin.failedAction': 'Failed',
+      'admin.login.title': 'Admin Login',
+      'admin.login.password': 'Admin Password',
+      'admin.login.signIn': 'Sign In',
+      'admin.login.badKey': 'Invalid admin key. Please try again.',
 
       'receipt.title': 'Receipt',
       'receipt.adults': 'Adults',
@@ -203,6 +207,10 @@
       'admin.failedToggle': '切换锁定失败',
       'admin.failedLoad': '加载失败。',
       'admin.failedAction': '操作失败',
+      'admin.login.title': '管理员登录',
+      'admin.login.password': '管理员密码',
+      'admin.login.signIn': '登录',
+      'admin.login.badKey': '管理员密钥无效，请重试。',
 
       'receipt.title': '收据',
       'receipt.adults': '成人',

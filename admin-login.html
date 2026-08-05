@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NUSTOUR — Admin Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="/index.html"><span class="brand-text"><span class="nus">NUS</span> <span class="tour">TOUR</span></span></a>
+        <button id="navToggle" class="nav-toggle" aria-label="Menu">☰</button>
+        <nav class="nav" id="siteNav">
+          <a href="/index.html" data-i18n="nav.main">Main Page</a>
+          <a href="/about.html" data-i18n-html="nav.about_html">About <span class="brand-text"><span class="nus">NUS</span> <span class="tour">TOUR</span></span></a>
+          <a href="/book.html" class="cta" data-i18n="nav.book">Book Now</a>
+          <select id="langSelect" class="lang-select" aria-label="Language">
+            <option value="cn" data-i18n-option="lang.cn">CN</option>
+            <option value="en" data-i18n-option="lang.en">EN</option>
+          </select>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container narrow fade-in" style="padding:28px 0 40px;">
+      <section class="card" style="max-width:560px;margin:30px auto;">
+        <h1 data-i18n="admin.login.title" style="margin:0 0 10px;">Admin Login</h1>
+        <form id="adminLoginForm">
+          <div class="form-row">
+            <label for="adminPwd" data-i18n="admin.login.password">Admin Password</label>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="password" id="adminPwd" autocomplete="current-password" required style="flex:1;" />
+              <button type="button" id="togglePwd" class="button sm" aria-label="Show/Hide">👁</button>
+            </div>
+          </div>
+          <div id="loginStatus" class="status" aria-live="polite"></div>
+          <menu class="dialog-actions" style="margin-top:8px;">
+            <button type="submit" id="signInBtn" class="button primary" data-i18n="admin.login.signIn">Sign In</button>
+          </menu>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p class="disclaimer" data-i18n="disclaimer">Disclaimer: Any opinion or information on this website does not represent NUS.</p>
+        <p class="copyright">© <span id="year"></span> NUSTOUR</p>
+      </div>
+    </footer>
+
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/site.js"></script>
+    <script src="assets/js/admin_login.js"></script>
+    <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  </body>
+</html>
