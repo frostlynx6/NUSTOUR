@@ -30,11 +30,13 @@ export async function handler(event) {
       if (Object.keys(days[dayISO]).length === 0) delete days[dayISO];
     }
 
-    const lockedDates = await getLockedDates();
+    let lockedDates = [];
+    try { lockedDates = await getLockedDates(); } catch (e) { console.warn('lockedDates fetch failed', e); lockedDates = []; }
     return json({ days, lockedDates }, cors);
   } catch (e) {
     console.error(e);
-    return err(500, 'Internal Error', cors);
+    // Fallback to empty data rather than a hard 500 so the UI still loads
+    return json({ days: {}, lockedDates: [] }, cors);
   }
 }
 

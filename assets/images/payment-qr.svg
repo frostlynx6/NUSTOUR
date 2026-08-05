@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" role="img" aria-label="QR placeholder">
+  <rect x="4" y="4" width="192" height="192" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="6 6" rx="8"/>
+  <g fill="#94a3b8">
+    <rect x="50" y="50" width="20" height="20"/>
+    <rect x="130" y="50" width="20" height="20"/>
+    <rect x="50" y="130" width="20" height="20"/>
+    <rect x="95" y="95" width="10" height="10"/>
+    <rect x="120" y="120" width="12" height="12"/>
+    <rect x="70" y="90" width="12" height="12"/>
+  </g>
+  <text x="50%" y="180" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#94a3b8">Upload QR later</text>
+</svg>
