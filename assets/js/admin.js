@@ -22,6 +22,14 @@
   let selectedDateISO = null;
   let viewMonth = null;
 
+  function ensureViewMonth() {
+    if (!viewMonth) {
+      const now = new Date();
+      viewMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    }
+    return viewMonth;
+  }
+
   if (adminKey) adminKeyInput.value = adminKey;
   saveKeyBtn.addEventListener('click', () => {
     adminKey = adminKeyInput.value.trim();
@@ -52,7 +60,7 @@
       body: JSON.stringify({ action, date: dateISO })
     });
     if (!resp.ok) { alert((window.NUSI18N?.t('admin.failedToggle')) || 'Failed to toggle lock'); return; }
-    await refreshLocked();
+    await refreshLocked(ensureViewMonth());
     buildCalendar();
     if (adminStatus) adminStatus.textContent = `${dateISO} ${locked.has(dateISO) ? 'locked' : 'unlocked'}`;
   }
@@ -96,9 +104,9 @@
       const next = document.createElement('button'); next.className='button sm'; next.textContent='›';
       nav.appendChild(prev); nav.appendChild(label); nav.appendChild(next);
       cal.appendChild(nav);
-      prev.addEventListener('click', async ()=>{ viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth()-1, 1); await refreshLocked(viewMonth); buildCalendar(); updateMonthLabel(); });
-      next.addEventListener('click', async ()=>{ viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth()+1, 1); await refreshLocked(viewMonth); buildCalendar(); updateMonthLabel(); });
-      function updateMonthLabel(){ const first = new Date(viewMonth.getFullYear(), viewMonth.getMonth(), 1); label.textContent = first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }); }
+      prev.addEventListener('click', async ()=>{ const vm = ensureViewMonth(); viewMonth = new Date(vm.getFullYear(), vm.getMonth()-1, 1); await refreshLocked(viewMonth); buildCalendar(); updateMonthLabel(); });
+      next.addEventListener('click', async ()=>{ const vm = ensureViewMonth(); viewMonth = new Date(vm.getFullYear(), vm.getMonth()+1, 1); await refreshLocked(viewMonth); buildCalendar(); updateMonthLabel(); });
+      function updateMonthLabel(){ const vm = ensureViewMonth(); const first = new Date(vm.getFullYear(), vm.getMonth(), 1); label.textContent = first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }); }
       updateMonthLabel();
     }
   })();
@@ -171,7 +179,7 @@
   }
 
   (async () => {
-    try { viewMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1); await refreshLocked(viewMonth); } catch {}
+    try { ensureViewMonth(); await refreshLocked(viewMonth); } catch {}
     buildCalendar();
   })();
 
