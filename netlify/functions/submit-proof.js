@@ -39,9 +39,15 @@ export async function handler(event) {
       createdAt: Date.now(),
       expiresAt: Date.now() + 48*60*60*1000,
     };
-    const list = await getReservations(rec.dateISO, rec.hour);
-    list.push(rec);
-    await putReservations(rec.dateISO, rec.hour, list);
+    let storageOk = true;
+    try {
+      const list = await getReservations(rec.dateISO, rec.hour);
+      list.push(rec);
+      await putReservations(rec.dateISO, rec.hour, list);
+    } catch (e) {
+      console.error('Storage failed', e);
+      storageOk = false;
+    }
 
     // Compose Discord content
     const content = [
@@ -77,7 +83,7 @@ export async function handler(event) {
       console.warn('DISCORD_WEBHOOK_URL not configured; skipping webhook post');
     }
 
-    return { statusCode: 200, headers: { 'Content-Type': 'application/json', ...cors }, body: JSON.stringify({ ok: true, id }) };
+    return { statusCode: 200, headers: { 'Content-Type': 'application/json', ...cors }, body: JSON.stringify({ ok: storageOk, id, record: { dateISO: rec.dateISO, hour: rec.hour, adults: rec.adults, children: rec.children } }) };
   } catch (err) {
     console.error(err);
     // Return a soft error so the client UI doesn't break irrecoverably

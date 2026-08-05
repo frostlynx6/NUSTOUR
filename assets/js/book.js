@@ -269,8 +269,25 @@
       if (!resp.ok) throw new Error('Submission failed');
       const data = await resp.json();
 
-      // Refresh from server and re-render
-      await primeSummary();
+      if (!data.ok) {
+        uploadStatus.textContent = (window.NUSI18N?.t('status.error')) || 'Error submitting proof. Please try again.';
+        return;
+      }
+
+      // Optimistic update in case server summary is empty
+      try {
+        const r = data.record || {};
+        const iso = r.dateISO || pendingSelection.dateISO;
+        const hr = r.hour ?? pendingSelection.hour;
+        const add = (Number(r.adults||0) + Number(r.children||0)) || ((pendingSelection.adults||0)+(pendingSelection.children||0));
+        latestSummary.days = latestSummary.days || {};
+        latestSummary.days[iso] = latestSummary.days[iso] || {};
+        const cur = latestSummary.days[iso][hr] || { reserved: 0, confirmed: 0, confirmedAE: 0 };
+        latestSummary.days[iso][hr] = { ...cur, reserved: (cur.reserved||0) + add };
+      } catch (_) {}
+
+      // Refresh from server and re-render (authoritative)
+      try { await primeSummary(); } catch (_) {}
       await render();
 
       uploadStatus.textContent = (window.NUSI18N?.t('status.submitted')) || 'Submitted! Your slot is reserved for 48 hours pending verification.';
