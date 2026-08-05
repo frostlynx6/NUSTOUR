@@ -8,11 +8,16 @@
 
   const SLOT_START = 9, SLOT_END = 16;
   let adminKey = sessionStorage.getItem('nustourAdminKey') || '';
-  if (!adminKey) {
-    // Redirect to login page if not authenticated
-    window.location.replace('/admin-login.html');
-    return;
-  }
+  try {
+    if (!adminKey) {
+      // Show fallback hint and redirect
+      const fb = document.getElementById('adminFallback'); if (fb) fb.style.display = 'block';
+      setTimeout(() => window.location.replace('/admin-login.html'), 0);
+      return;
+    } else {
+      const fb = document.getElementById('adminFallback'); if (fb) fb.style.display = 'none';
+    }
+  } catch {}
   let locked = new Set();
   let selectedDateISO = null;
   let viewMonth = null;
