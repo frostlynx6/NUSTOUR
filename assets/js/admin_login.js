@@ -1,9 +1,7 @@
 (() => {
   async function validateKey(key) {
-    const today = new Date();
-    const iso = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
     try {
-      const resp = await fetch(`/api/admin?date=${iso}`, { headers: { 'X-Admin-Key': key || '' } });
+      const resp = await fetch(`/api/admin?ping=1`, { headers: { 'X-Admin-Key': key || '' } });
       return resp.ok;
     } catch { return false; }
   }

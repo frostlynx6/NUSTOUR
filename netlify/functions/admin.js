@@ -13,6 +13,10 @@ export async function handler(event) {
     if (event.httpMethod === 'GET') {
       // List reservations for a specific date
       const url = new URL(event.rawUrl || `http://localhost${event.path}`);
+      const ping = url.searchParams.get('ping');
+      if (ping === '1') {
+        return json({ ok: true }, cors);
+      }
       const date = url.searchParams.get('date');
       if (!date) return err(400, 'date required (YYYY-MM-DD)', cors);
       const out = {};
