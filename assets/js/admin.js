@@ -53,7 +53,8 @@
 
   async function toggleLock(dateISO) {
     if (!adminKey) return alert('Set Admin Key first.');
-    const action = locked.has(dateISO) ? 'unlockDate' : 'lockDate';
+    const isLocked = locked.has(dateISO);
+    const action = isLocked ? 'unlockDate' : 'lockDate';
     const resp = await fetch('/api/admin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
@@ -62,6 +63,7 @@
     if (!resp.ok) { alert((window.NUSI18N?.t('admin.failedToggle')) || 'Failed to toggle lock'); return; }
     await refreshLocked(ensureViewMonth());
     buildCalendar();
+    await loadReservations(dateISO);
     if (adminStatus) adminStatus.textContent = `${dateISO} ${locked.has(dateISO) ? 'locked' : 'unlocked'}`;
   }
 
@@ -84,8 +86,8 @@
       if (!isWk) div.classList.add('disabled');
       if (locked.has(iso)) div.classList.add('locked');
       if (isWk) {
-        div.addEventListener('click', () => toggleLock(iso));
-        div.addEventListener('dblclick', () => loadReservations(iso));
+        // Click to view info for the date
+        div.addEventListener('click', () => loadReservations(iso));
       }
       adminCalGrid.appendChild(div);
     }
@@ -119,6 +121,14 @@
     const resp = await fetch(url, { headers: { 'X-Admin-Key': adminKey || '' } });
     if (!resp.ok) { slotList.textContent = (window.NUSI18N?.t('admin.failedLoad')) || 'Failed to load.'; return; }
     const data = await resp.json();
+    const isLocked = (data.lockedDates || []).includes(dateISO);
+    // Day info header with lock button
+    const infoBar = document.createElement('div');
+    infoBar.style.display = 'flex'; infoBar.style.alignItems = 'center'; infoBar.style.gap='8px'; infoBar.style.margin='6px 0 12px';
+    const lockBtn = document.createElement('button'); lockBtn.className = 'button sm'; lockBtn.textContent = isLocked ? 'Unlock Day' : 'Lock Day';
+    lockBtn.addEventListener('click', () => toggleLock(dateISO));
+    infoBar.appendChild(lockBtn);
+    slotList.appendChild(infoBar);
     const hours = data.hours || {};
     for (let h = SLOT_START; h <= SLOT_END; h++) {
       const row = hours[h];

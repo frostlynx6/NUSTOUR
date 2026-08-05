@@ -1,4 +1,4 @@
-import { getLockedDates, setLockedDates, getReservations, putReservations, summarize, cleanupExpired, wipeAllReservations } from './_lib/store.mjs';
+import { getLockedDates, setLockedDates, getReservations, putReservations, summarize, cleanupExpired, wipeAllReservations, deleteKey, slotKey } from './_lib/store.mjs';
 
 export async function handler(event) {
   const cors = baseCors();
@@ -72,7 +72,25 @@ export async function handler(event) {
     }
 
     if (action === 'wipeAll') {
-      const out = await wipeAllReservations();
+      // Try wide wipe; if list-based wipe fails or wipes nothing, scan a broad date range instead
+      let out = { wiped: 0 };
+      try { out = await wipeAllReservations(); } catch (e) { console.warn('wipeAllReservations failed, falling back', e); }
+      if (!out || !Number.isFinite(out.wiped) || out.wiped === 0) {
+        const bodyStart = body.start;
+        const bodyEnd = body.end;
+        const now = new Date();
+        const start = bodyStart ? new Date(bodyStart + 'T00:00:00') : new Date(now.getFullYear(), now.getMonth()-3, 1);
+        const end = bodyEnd ? new Date(bodyEnd + 'T00:00:00') : new Date(now.getFullYear(), now.getMonth()+6, 0);
+        let wiped = 0;
+        for (let d = new Date(start); d <= end; d.setDate(d.getDate()+1)) {
+          const iso = d.toISOString().slice(0,10);
+          for (let h = 9; h <= 16; h++) {
+            try { await deleteKey(slotKey(iso, h)); wiped++; } catch {}
+          }
+        }
+        out = { wiped };
+      }
+      try { await setLockedDates([]); } catch {}
       return json({ ok: true, ...out }, cors);
     }
 
